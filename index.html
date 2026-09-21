@@ -1,570 +1,137 @@
-<title>Matrice PMF Voyage</title>
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Matrice PMF — Agence de voyage</title>
 <style>
-  :root{
-    --bg:#eef1ef;
-    --surface:#ffffff;
-    --surface-2:#e4e9e5;
-    --ink:#182726;
-    --ink-soft:#516260;
-    --line:#d4dcd7;
-    --accent:#2f6459;
-    --accent-strong:#1f4740;
-    --accent-tint:#e2ece8;
-    --danger:#a8402f;
-    --danger-tint:#f5e4e0;
-    --warning:#b4791f;
-    --warning-tint:#f6ecd9;
-    --good:#2f7a49;
-    --good-tint:#e2f0e4;
-    --shadow: 0 1px 2px rgba(24,39,38,0.06), 0 8px 24px -12px rgba(24,39,38,0.18);
-  }
-  @media (prefers-color-scheme: dark){
-    :root:not([data-theme="light"]){
-      --bg:#101817;
-      --surface:#182423;
-      --surface-2:#1f2c2a;
-      --ink:#e9efec;
-      --ink-soft:#a3b3af;
-      --line:#2b3936;
-      --accent:#6bab9b;
-      --accent-strong:#8fc4b5;
-      --accent-tint:#1c322c;
-      --danger:#d98874;
-      --danger-tint:#3a221e;
-      --warning:#e0b167;
-      --warning-tint:#3a2f1a;
-      --good:#82c397;
-      --good-tint:#1c3324;
-      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -12px rgba(0,0,0,0.5);
-    }
-  }
-  :root[data-theme="dark"]{
-    --bg:#101817;
-    --surface:#182423;
-    --surface-2:#1f2c2a;
-    --ink:#e9efec;
-    --ink-soft:#a3b3af;
-    --line:#2b3936;
-    --accent:#6bab9b;
-    --accent-strong:#8fc4b5;
-    --accent-tint:#1c322c;
-    --danger:#d98874;
-    --danger-tint:#3a221e;
-    --warning:#e0b167;
-    --warning-tint:#3a2f1a;
-    --good:#82c397;
-    --good-tint:#1c3324;
-    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -12px rgba(0,0,0,0.5);
-  }
-
-  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
-
-  *{box-sizing:border-box;}
-  body{
-    background:var(--bg);
-    color:var(--ink);
-    font-family:'Public Sans', -apple-system, sans-serif;
-    padding-inline:16px;
-    padding-block:32px;
-    line-height:1.5;
-  }
-  .wrap{
-    max-width:760px;
-    margin-inline:auto;
-    display:flex;
-    flex-direction:column;
-    gap:24px;
-  }
-  h1,h2,h3{
-    font-family:'Fraunces', Georgia, serif;
-    font-weight:600;
-    text-wrap:balance;
-    margin:0;
-  }
-  .eyebrow{
-    font-family:'Public Sans', sans-serif;
-    font-size:0.72rem;
-    font-weight:700;
-    letter-spacing:0.09em;
-    text-transform:uppercase;
-    color:var(--accent-strong);
-  }
-  header{
-    display:flex;
-    flex-direction:column;
-    gap:8px;
-  }
-  h1{font-size:clamp(1.5rem,4vw,2rem);}
-  .sub{color:var(--ink-soft); font-size:0.95rem; max-width:60ch;}
-
-  .formula{
-    background:var(--surface);
-    border:1px solid var(--line);
-    border-radius:14px;
-    padding:18px 20px;
-    box-shadow:var(--shadow);
-    display:flex;
-    flex-wrap:wrap;
-    align-items:center;
-    gap:10px 14px;
-    font-size:0.95rem;
-  }
-  .formula .chip{
-    font-family:'IBM Plex Mono', monospace;
-    font-weight:600;
-    background:var(--surface-2);
-    border-radius:8px;
-    padding:4px 10px;
-    font-size:0.9rem;
-  }
-  .formula .eq{color:var(--ink-soft); font-weight:600;}
-
-  .mode-toggle{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:12px;
-    background:var(--surface);
-    border:1px solid var(--line);
-    border-radius:14px;
-    padding:14px 18px;
-    box-shadow:var(--shadow);
-  }
-  .mode-toggle .label{font-weight:600; font-size:0.95rem;}
-  .mode-toggle .desc{color:var(--ink-soft); font-size:0.82rem; margin-top:2px;}
-  .switch{
-    position:relative;
-    width:46px; height:26px;
-    flex:none;
-  }
-  .switch input{position:absolute; opacity:0; width:100%; height:100%; margin:0; cursor:pointer; z-index:1;}
-  .switch .track{
-    position:absolute; inset:0;
-    background:var(--surface-2);
-    border:1px solid var(--line);
-    border-radius:999px;
-    transition:background .15s ease;
-  }
-  .switch .knob{
-    position:absolute; top:2px; left:2px;
-    width:20px; height:20px;
-    border-radius:50%;
-    background:var(--surface);
-    box-shadow:0 1px 3px rgba(0,0,0,0.25);
-    transition:transform .15s ease;
-  }
-  .switch input:checked ~ .track{background:var(--accent);}
-  .switch input:checked ~ .knob{transform:translateX(20px);}
-  .switch input:focus-visible ~ .track{outline:2px solid var(--accent-strong); outline-offset:2px;}
-
-  .criteria{
-    display:flex;
-    flex-direction:column;
-    gap:12px;
-  }
-  .criterion{
-    background:var(--surface);
-    border:1px solid var(--line);
-    border-radius:14px;
-    padding:16px 18px;
-    box-shadow:var(--shadow);
-    display:flex;
-    flex-direction:column;
-    gap:10px;
-  }
-  .criterion-head{
-    display:flex;
-    justify-content:space-between;
-    align-items:flex-start;
-    gap:12px;
-  }
-  .criterion-name{font-weight:600; font-size:1rem;}
-  .criterion-q{color:var(--ink-soft); font-size:0.85rem; margin-top:2px;}
-  .criterion-anchors{
-    display:flex;
-    justify-content:space-between;
-    font-size:0.72rem;
-    color:var(--ink-soft);
-    font-style:italic;
-    gap:8px;
-  }
-  .criterion-anchors span{flex:1;}
-  .criterion-anchors span:last-child{text-align:right;}
-
-  .score-row{
-    display:flex;
-    align-items:center;
-    gap:10px;
-  }
-  .pills{
-    display:flex;
-    gap:6px;
-    flex:1;
-  }
-  .pill{
-    flex:1;
-    aspect-ratio:1.4;
-    border-radius:9px;
-    border:1px solid var(--line);
-    background:var(--surface-2);
-    color:var(--ink-soft);
-    font-family:'IBM Plex Mono', monospace;
-    font-weight:600;
-    font-size:0.95rem;
-    cursor:pointer;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    transition:all .12s ease;
-  }
-  .pill:hover{border-color:var(--accent);}
-  .pill.active{
-    background:var(--accent);
-    border-color:var(--accent);
-    color:#fff;
-  }
-  .weight-select{
-    flex:none;
-    display:flex;
-    align-items:center;
-    gap:6px;
-  }
-  .weight-select label{
-    font-size:0.7rem;
-    color:var(--ink-soft);
-    text-transform:uppercase;
-    letter-spacing:0.05em;
-  }
-  .weight-select .w-pills{display:flex; gap:4px;}
-  .w-pill{
-    width:26px; height:26px;
-    border-radius:7px;
-    border:1px solid var(--line);
-    background:var(--surface-2);
-    color:var(--ink-soft);
-    font-family:'IBM Plex Mono', monospace;
-    font-size:0.78rem;
-    font-weight:600;
-    cursor:pointer;
-    display:flex; align-items:center; justify-content:center;
-  }
-  .w-pill.active{background:var(--accent-strong); border-color:var(--accent-strong); color:#fff;}
-  .weight-select[hidden]{display:none;}
-
-  .summary{
-    position:sticky;
-    bottom:12px;
-    background:var(--surface);
-    border:1px solid var(--line);
-    border-radius:16px;
-    padding:20px 22px;
-    box-shadow:0 4px 8px rgba(24,39,38,0.08), 0 16px 36px -14px rgba(24,39,38,0.28);
-    display:flex;
-    flex-direction:column;
-    gap:14px;
-  }
-  .summary-top{
-    display:flex;
-    align-items:baseline;
-    justify-content:space-between;
-    gap:12px;
-    flex-wrap:wrap;
-  }
-  .total{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:2.1rem;
-    font-weight:600;
-    font-variant-numeric:tabular-nums;
-    line-height:1;
-  }
-  .total span{font-size:1.1rem; color:var(--ink-soft); font-weight:500;}
-  .band{
-    padding:6px 14px;
-    border-radius:999px;
-    font-weight:700;
-    font-size:0.82rem;
-    letter-spacing:0.02em;
-  }
-  .band.none{background:var(--danger-tint); color:var(--danger);}
-  .band.partial{background:var(--warning-tint); color:var(--warning);}
-  .band.real{background:var(--good-tint); color:var(--good);}
-
-  .bar-track{
-    position:relative;
-    height:10px;
-    border-radius:999px;
-    background:var(--surface-2);
-    overflow:hidden;
-  }
-  .bar-fill{
-    position:absolute; inset:0 auto 0 0;
-    border-radius:999px;
-    background:linear-gradient(90deg, var(--danger), var(--warning) 50%, var(--good));
-    width:0%;
-    transition:width .2s ease;
-  }
-  .bar-ticks{
-    position:relative;
-    height:14px;
-    font-size:0.68rem;
-    color:var(--ink-soft);
-    font-family:'IBM Plex Mono', monospace;
-  }
-  .bar-ticks span{position:absolute; transform:translateX(-50%);}
-
-  .verdict{
-    font-size:0.9rem;
-    color:var(--ink-soft);
-  }
-  .verdict strong{color:var(--ink); font-weight:600;}
-
-  footer{
-    color:var(--ink-soft);
-    font-size:0.78rem;
-    text-align:center;
-    padding-bottom:8px;
-  }
-
-  @media (max-width:480px){
-    .pill{font-size:0.85rem;}
-    .weight-select{flex-direction:column; align-items:flex-end; gap:2px;}
-    .criterion-anchors{display:none;}
-  }
+:root{
+  --bg:#f3f5f2; --card:#fff; --ink:#142522; --muted:#536460;
+  --accent:#2f6b5f; --soft:#e5eae6; --border:#d5ddd8; --shadow:0 8px 22px rgba(28,48,43,.08);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+main{max-width:1180px;margin:auto;padding:34px 28px 70px}
+.eyebrow{font-size:15px;letter-spacing:.14em;font-weight:800;color:#245247;text-transform:uppercase}
+h1{font-family:Georgia,"Times New Roman",serif;font-size:48px;line-height:1.05;margin:20px 0 24px}
+.intro{font-size:20px;line-height:1.45;color:var(--muted);max-width:760px}
+.info,.switch-card,.signal,.result{background:var(--card);border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow)}
+.info{margin:34px 0;padding:24px 28px;font-size:18px;font-weight:700}
+.info code{background:var(--soft);border-radius:10px;padding:8px 12px;font-size:17px}
+.switch-card{display:flex;justify-content:space-between;gap:24px;align-items:center;padding:22px 28px;margin-bottom:28px}
+.switch-card h2,.signal h2{margin:0 0 6px;font-size:22px}
+.switch-card p,.signal .question{margin:0;color:var(--muted);font-size:17px}
+.switch{position:relative;width:58px;height:34px;flex:none}
+.switch input{opacity:0;width:0;height:0}
+.slider{position:absolute;inset:0;background:#dfe5e1;border:1px solid #cbd5cf;border-radius:99px;cursor:pointer}
+.slider:before{content:"";position:absolute;width:28px;height:28px;left:2px;top:2px;background:#fff;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,.18);transition:.2s}
+.switch input:checked + .slider{background:#8fb5aa}
+.switch input:checked + .slider:before{transform:translateX(24px)}
+.signal{padding:26px 28px;margin:22px 0}
+.scale-labels{display:flex;justify-content:space-between;gap:20px;margin:22px 0 14px;color:#4f605c;font-style:italic;font-size:15px}
+.scores{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.score{min-height:108px;border:1px solid #cfd8d2;background:var(--soft);border-radius:13px;color:#52625e;font-size:24px;font-weight:800;cursor:pointer;transition:.15s}
+.score:hover{transform:translateY(-1px);border-color:#9fb4ab}
+.score.active{background:var(--accent);color:white;border-color:var(--accent)}
+.meta{display:grid;grid-template-columns:1fr 180px;gap:18px;margin-top:18px}
+.evidence label,.weight label{display:block;font-size:13px;font-weight:800;color:#52625e;margin-bottom:7px;text-transform:uppercase;letter-spacing:.05em}
+input[type=text],select{width:100%;border:1px solid var(--border);border-radius:10px;background:#fafbf9;padding:12px 13px;font:inherit;color:var(--ink)}
+.weight{display:none}.weighted .weight{display:block}
+.result{padding:26px 28px;margin-top:30px;display:flex;align-items:center;justify-content:space-between;gap:28px}
+.total{font-family:Georgia,"Times New Roman",serif;font-size:42px;font-weight:700}
+.total small{display:block;font-family:Inter,sans-serif;font-size:13px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:5px}
+.result p{max-width:640px;color:var(--muted);line-height:1.5;margin:0}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.action{border:1px solid var(--border);background:white;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer;color:var(--ink)}
+.note{margin-top:14px;font-size:13px;color:#687873}
+@media(max-width:700px){
+ main{padding:24px 16px 50px} h1{font-size:38px}.scores{gap:6px}.score{min-height:78px}
+ .meta{grid-template-columns:1fr}.result,.switch-card{align-items:flex-start;flex-direction:column}.scale-labels{font-size:13px}
+}
 </style>
+</head>
+<body>
+<main id="app">
+  <div class="eyebrow">Outil de scoring</div>
+  <h1>Matrice PMF — Agence de voyage</h1>
+  <p class="intro">7 signaux, notés de 1 à 5. Clique une note par ligne. Le total se recalcule en direct — active la pondération si un signal compte plus qu'un autre pour ton positionnement.</p>
 
-<div class="wrap">
+  <div class="info"><code>7 signaux</code> &nbsp;×&nbsp; <code>5 pts max</code> &nbsp;=&nbsp; <code>35</code> &nbsp;— pas un seuil scientifique, une grille de lecture.</div>
 
-  <header>
-    <div class="eyebrow">Outil de scoring</div>
-    <h1>Matrice PMF — Agence de voyage</h1>
-    <p class="sub">7 signaux, notés de 1 à 5. Clique une note par ligne. Le total se recalcule en direct — active la pondération si un signal compte plus qu'un autre pour ton positionnement.</p>
-  </header>
+  <section class="switch-card">
+    <div><h2>Pondération par priorité</h2><p>Sans pondération : les 7 signaux comptent pareil. Avec : tu décides lesquels pèsent plus.</p></div>
+    <label class="switch" aria-label="Activer la pondération"><input id="weighted" type="checkbox"><span class="slider"></span></label>
+  </section>
 
-  <div class="formula">
-    <span class="chip">7 signaux</span>
-    <span class="eq">×</span>
-    <span class="chip">5 pts max</span>
-    <span class="eq">=</span>
-    <span class="chip" id="maxDisplay">35</span>
-    <span class="eq">— pas un seuil scientifique, une addition.</span>
-  </div>
+  <div id="signals"></div>
 
-  <div class="mode-toggle">
+  <section class="result">
+    <div class="total"><small>Score actuel</small><span id="total">21</span><span id="denom"> / 35</span></div>
     <div>
-      <div class="label">Pondération par priorité</div>
-      <div class="desc">Sans pondération : les 7 signaux comptent pareil. Avec : tu décides lesquels pèsent plus.</div>
+      <p id="reading">Le score sert à faire apparaître les écarts et les hypothèses. La preuve renseignée sous chaque signal compte davantage que le chiffre seul.</p>
+      <div class="actions"><button class="action" id="reset" type="button">Réinitialiser</button></div>
+      <div class="note">Conseil : scorer séparément les voyages catalogue, le privé actuel et l'offre premium cible. Pour l'offre cible, traiter les notes comme des hypothèses à valider.</div>
     </div>
-    <label class="switch">
-      <input type="checkbox" id="weightToggle" aria-label="Activer la pondération">
-      <span class="track"></span>
-      <span class="knob"></span>
-    </label>
-  </div>
-
-  <div class="criteria" id="criteria"></div>
-
-  <div class="summary">
-    <div class="summary-top">
-      <div class="total"><span id="totalVal">0</span><span> / 35</span></div>
-      <div class="band none" id="bandLabel">Pas de PMF</div>
-    </div>
-    <div>
-      <div class="bar-track"><div class="bar-fill" id="barFill"></div></div>
-      <div class="bar-ticks">
-        <span style="left:0%">7</span>
-        <span style="left:36%">15</span>
-        <span style="left:66%">25</span>
-        <span style="left:100%">35</span>
-      </div>
-    </div>
-    <div class="verdict" id="verdictText"></div>
-  </div>
-
-  <footer>Seuils 15 / 25 : repères empiriques à calibrer avec tes propres clients — pas une norme.</footer>
-
-</div>
+  </section>
+</main>
 
 <script>
-(function(){
-  var criteria = [
-    {
-      key:'intensite',
-      name:'Intensité du problème',
-      q:'Le client cherche-t-il activement une solution, ou est-ce "nice to have" ?',
-      low:'"Je regarde par curiosité"',
-      high:'"Je perds du temps/argent sans vous"'
-    },
-    {
-      key:'volonte',
-      name:'Volonté de payer',
-      q:'Paie-t-il facilement, sans négocier ni comparer 5 devis ?',
-      low:'Négocie systématiquement',
-      high:'Achète au prix affiché'
-    },
-    {
-      key:'retention',
-      name:'Rétention / répétition',
-      q:'Revient-il sans relance ?',
-      low:'Client one-shot',
-      high:'Client récurrent naturel'
-    },
-    {
-      key:'recommandation',
-      name:'Recommandation spontanée',
-      q:'Vous cite-t-il sans que vous demandiez ?',
-      low:'Jamais',
-      high:'Bouche-à-oreille actif'
-    },
-    {
-      key:'acquisition',
-      name:'Facilité d\'acquisition',
-      q:'Le canal qui vous amène des clients est-il reproductible et scalable ?',
-      low:'Un seul contact perso',
-      high:'Canal identifié et duplicable'
-    },
-    {
-      key:'differenciation',
-      name:'Différenciation perçue',
-      q:'Le client sait-il dire pourquoi vous et pas un concurrent / une OTA ?',
-      low:'"Vous êtes une agence de voyage"',
-      high:'Il cite une raison précise'
-    },
-    {
-      key:'economie',
-      name:'Économie unitaire',
-      q:'La marge par client couvre-t-elle le coût d\'acquisition + service ?',
-      low:'Marge érodée par le temps passé',
-      high:'Marge saine et prévisible'
-    }
-  ];
+const signals = [
+ {title:"Intensité du désir", q:"Quelle importance le client accorde-t-il à la réussite de cette expérience ?", low:"Voyage interchangeable / curiosité", high:"Expérience importante pour laquelle il refuse le compromis"},
+ {title:"Acquisition prévisible", q:"Savons-nous d'où viennent les bons clients et pouvons-nous reproduire leur acquisition ?", low:"Opportuniste / réseau personnel", high:"Canaux identifiés, mesurables et reproductibles"},
+ {title:"Différenciation perçue", q:"Le client sait-il dire pourquoi Fjallabak et pas un concurrent / une OTA ?", low:"« Vous êtes une agence de voyage »", high:"Il cite une raison précise et difficile à substituer"},
+ {title:"Économie unitaire", q:"La marge réelle par voyage/client est-elle connue, saine et prévisible après les coûts directs et le temps humain ?", low:"Marge inconnue ou érodée par le temps passé", high:"Marge saine, connue et prévisible"},
+ {title:"Disposition à payer", q:"Le client accepte-t-il un premium lorsque la valeur spécifique de Fjallabak est comprise ?", low:"Décision principalement fondée sur le prix", high:"Prix secondaire face à l'accès, l'expertise, la confiance ou la singularité"},
+ {title:"Valeur client étendue", q:"La relation génère-t-elle de la valeur au-delà du premier voyage ?", low:"Transaction unique, relation terminée", high:"Réachat, extension, autre voyage ou recommandations qualifiées"},
+ {title:"Recommandation spontanée", q:"Les clients recommandent-ils Fjallabak sans qu'on le leur demande — et cela génère-t-il des demandes qualifiées ?", low:"Jamais / sans effet commercial identifiable", high:"Recommandation active générant régulièrement des demandes qualifiées"}
+];
+const state = signals.map(()=>({score:3,weight:1,evidence:""}));
+const root=document.getElementById("signals");
+const app=document.getElementById("app");
+const weighted=document.getElementById("weighted");
 
-  var state = {};
-  criteria.forEach(function(c){ state[c.key] = { score: 3, weight: 2 }; });
-  var weighted = false;
-
-  var container = document.getElementById('criteria');
-
-  criteria.forEach(function(c){
-    var card = document.createElement('div');
-    card.className = 'criterion';
-
-    var head = document.createElement('div');
-    head.className = 'criterion-head';
-    head.innerHTML =
-      '<div><div class="criterion-name">'+c.name+'</div>'+
-      '<div class="criterion-q">'+c.q+'</div></div>';
-    card.appendChild(head);
-
-    var anchors = document.createElement('div');
-    anchors.className = 'criterion-anchors';
-    anchors.innerHTML = '<span>1 — '+c.low+'</span><span>5 — '+c.high+'</span>';
-    card.appendChild(anchors);
-
-    var row = document.createElement('div');
-    row.className = 'score-row';
-
-    var pills = document.createElement('div');
-    pills.className = 'pills';
-    for(var i=1;i<=5;i++){
-      (function(val){
-        var p = document.createElement('button');
-        p.type = 'button';
-        p.className = 'pill' + (val===state[c.key].score ? ' active' : '');
-        p.textContent = val;
-        p.setAttribute('aria-label', c.name+': note '+val);
-        p.addEventListener('click', function(){
-          state[c.key].score = val;
-          Array.prototype.forEach.call(pills.children, function(el, idx){
-            el.classList.toggle('active', idx+1===val);
-          });
-          compute();
-        });
-        pills.appendChild(p);
-      })(i);
-    }
-    row.appendChild(pills);
-
-    var wsel = document.createElement('div');
-    wsel.className = 'weight-select';
-    wsel.hidden = true;
-    var wlabel = document.createElement('label');
-    wlabel.textContent = 'Poids';
-    wsel.appendChild(wlabel);
-    var wpills = document.createElement('div');
-    wpills.className = 'w-pills';
-    for(var w=1; w<=3; w++){
-      (function(val){
-        var wp = document.createElement('button');
-        wp.type = 'button';
-        wp.className = 'w-pill' + (val===state[c.key].weight ? ' active' : '');
-        wp.textContent = val;
-        wp.setAttribute('aria-label', c.name+': poids '+val);
-        wp.addEventListener('click', function(){
-          state[c.key].weight = val;
-          Array.prototype.forEach.call(wpills.children, function(el, idx){
-            el.classList.toggle('active', idx+1===val);
-          });
-          compute();
-        });
-        wpills.appendChild(wp);
-      })(w);
-    }
-    wsel.appendChild(wpills);
-    row.appendChild(wsel);
-    card.wsel = wsel;
-
-    card.appendChild(row);
-    container.appendChild(card);
-  });
-
-  var toggle = document.getElementById('weightToggle');
-  var wselEls = Array.prototype.map.call(container.children, function(c){ return c.wsel; });
-
-  toggle.addEventListener('change', function(){
-    weighted = toggle.checked;
-    wselEls.forEach(function(el){ el.hidden = !weighted; });
-    compute();
-  });
-
-  var totalVal = document.getElementById('totalVal');
-  var bandLabel = document.getElementById('bandLabel');
-  var barFill = document.getElementById('barFill');
-  var verdictText = document.getElementById('verdictText');
-
-  function compute(){
-    var scoreSum = 0, maxSum = 0;
-    criteria.forEach(function(c){
-      var s = state[c.key];
-      var w = weighted ? s.weight : 1;
-      scoreSum += s.score * w;
-      maxSum += 5 * w;
-    });
-    // Normalize back onto the /35 scale so the 15/25 bands stay meaningful either way
-    var normalized = (scoreSum / maxSum) * 35;
-    var rounded = Math.round(normalized * 10) / 10;
-
-    totalVal.textContent = rounded.toFixed(1).replace(/\.0$/, '');
-    var pct = Math.max(0, Math.min(100, (normalized - 7) / (35 - 7) * 100));
-    barFill.style.width = pct + '%';
-
-    var band, verdict;
-    if(normalized < 15){
-      band = 'none';
-      bandLabel.textContent = 'Pas de PMF';
-      verdict = '<strong>&lt; 15 :</strong> le problème est probablement le positionnement, pas le marketing. Ajouter des relances ou du budget pub ne réparera pas une différenciation faible.';
-    } else if(normalized < 25){
-      band = 'partial';
-      bandLabel.textContent = 'PMF partiel';
-      verdict = '<strong>15–25 :</strong> un ou deux segments marchent, les autres diluent le score. Identifie lequel tire la moyenne vers le haut et concentre-toi dessus avant de scaler.';
-    } else {
-      band = 'real';
-      bandLabel.textContent = 'PMF réel';
-      verdict = '<strong>&gt; 25 :</strong> le sujet devient la scalabilité, pas la validation. Le risque change de nature — de "est-ce que ça marche" à "est-ce que ça tient en grandissant".';
-    }
-    bandLabel.className = 'band ' + band;
-    verdictText.innerHTML = verdict;
-  }
-
-  compute();
-})();
+function render(){
+ root.innerHTML="";
+ signals.forEach((s,i)=>{
+  const sec=document.createElement("section"); sec.className="signal";
+  sec.innerHTML=`<h2>${s.title}</h2><p class="question">${s.q}</p>
+   <div class="scale-labels"><span>1 — ${s.low}</span><span>5 — ${s.high}</span></div>
+   <div class="scores" role="group" aria-label="${s.title}">
+    ${[1,2,3,4,5].map(n=>`<button type="button" class="score ${state[i].score===n?"active":""}" data-i="${i}" data-n="${n}">${n}</button>`).join("")}
+   </div>
+   <div class="meta">
+    <div class="evidence"><label for="e${i}">Preuve / donnée observée</label><input id="e${i}" type="text" data-e="${i}" value="${escapeHtml(state[i].evidence)}" placeholder="Ex. 38 % des demandes viennent de recommandations…"></div>
+    <div class="weight"><label for="w${i}">Poids</label><select id="w${i}" data-w="${i}"><option value="1">×1 — normal</option><option value="1.5">×1,5 — important</option><option value="2">×2 — prioritaire</option></select></div>
+   </div>`;
+  root.appendChild(sec);
+  sec.querySelector(`[data-w="${i}"]`).value=String(state[i].weight);
+ });
+ app.classList.toggle("weighted",weighted.checked);
+ updateTotal();
+}
+function escapeHtml(v){return v.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
+function updateTotal(){
+ let total=0,max=0;
+ state.forEach(x=>{const w=weighted.checked?x.weight:1; total+=x.score*w; max+=5*w});
+ const clean=n=>Number.isInteger(n)?n:n.toFixed(1).replace(".",",");
+ document.getElementById("total").textContent=clean(total);
+ document.getElementById("denom").textContent=" / "+clean(max);
+}
+root.addEventListener("click",e=>{
+ const b=e.target.closest(".score"); if(!b)return;
+ state[+b.dataset.i].score=+b.dataset.n; render();
+});
+root.addEventListener("input",e=>{
+ if(e.target.dataset.e!==undefined) state[+e.target.dataset.e].evidence=e.target.value;
+});
+root.addEventListener("change",e=>{
+ if(e.target.dataset.w!==undefined){state[+e.target.dataset.w].weight=+e.target.value;updateTotal();}
+});
+weighted.addEventListener("change",()=>{app.classList.toggle("weighted",weighted.checked);updateTotal()});
+document.getElementById("reset").addEventListener("click",()=>{
+ state.forEach(x=>{x.score=3;x.weight=1;x.evidence=""});weighted.checked=false;render();
+});
+render();
 </script>
+</body>
+</html>
